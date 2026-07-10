@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Admin — TrilhaX</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body>
+    <nav class="admin-navbar">
+      <div class="admin-navbar-left">
+        <a href="index.html" class="navbar-logo">Trilha<span>X</span></a>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <div class="admin-navbar-right">
+        <span class="admin-user-name" id="admin-user-name"></span>
+        <button class="btn btn-secondary" id="logout-btn">Sair</button>
+      </div>
+    </nav>
+
+    <aside class="admin-sidebar">
+      <button class="sidebar-item" data-tab="planos" aria-label="Ver planos">
+        <span class="sidebar-icon">📋</span>
+        <span class="sidebar-label">Planos</span>
+      </button>
+      <button class="sidebar-item" data-tab="carreiras" aria-label="Ver carreiras">
+        <span class="sidebar-icon">🎯</span>
+        <span class="sidebar-label">Carreiras</span>
+      </button>
+      <button class="sidebar-item" data-tab="ebooks" aria-label="Ver ebooks">
+        <span class="sidebar-icon">📚</span>
+        <span class="sidebar-label">Ebooks</span>
+      </button>
+    </aside>
+
+    <main class="admin-main">
+      <section class="admin-tab" id="tab-planos" data-tab-panel="planos">
+        <header class="admin-tab-header">
+          <h1>Gerenciar Planos</h1>
+          <button class="btn btn-primary" id="btn-novo-plano" aria-label="Criar novo plano">
+            + Novo Plano
+          </button>
+        </header>
+        <div class="admin-list" id="lista-planos"></div>
+      </section>
+
+      <section class="admin-tab" id="tab-carreiras" data-tab-panel="carreiras">
+        <header class="admin-tab-header">
+          <h1>Gerenciar Carreiras</h1>
+          <button class="btn btn-primary" id="btn-nova-carreira" aria-label="Criar nova carreira">
+            + Nova Carreira
+          </button>
+        </header>
+        <div class="admin-list" id="lista-carreiras"></div>
+      </section>
+
+      <section class="admin-tab" id="tab-ebooks" data-tab-panel="ebooks">
+        <header class="admin-tab-header">
+          <h1>Gerenciar Ebooks</h1>
+          <button class="btn btn-primary" id="btn-novo-ebook" aria-label="Criar novo ebook">
+            + Novo Ebook
+          </button>
+        </header>
+        <div class="admin-ebooks-filter">
+          <label for="select-carreira-filtro">Carreira</label>
+          <select id="select-carreira-filtro">
+            <option value="">Selecione uma carreira</option>
+          </select>
+        </div>
+        <div class="admin-list" id="lista-ebooks"></div>
+      </section>
+    </main>
+
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal glass-card" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="modal-close" id="modal-close" aria-label="Fechar modal">&times;</button>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>
