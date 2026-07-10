@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { FiCheck } from 'react-icons/fi'
 import { PrimaryButton } from '../ui/Button.jsx'
+import BackgroundOrbs from '../ui/BackgroundOrbs.jsx'
 
 const plans = [
   {
@@ -33,8 +34,9 @@ const plans = [
 
 export default function Plans() {
   return (
-    <section id="planos" className="relative py-24 md:py-32">
-      <div className="max-w-5xl mx-auto px-6">
+    <section id="planos" className="relative py-24 md:py-32 overflow-hidden">
+      <BackgroundOrbs variant="section" />
+      <div className="relative max-w-5xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -59,7 +61,7 @@ export default function Plans() {
               whileHover={{ scale: 1.02 }}
               className={`relative backdrop-blur-xl bg-white/5 border rounded-2xl p-8 ${
                 plan.highlight
-                  ? 'border-trilha-purple-500/50 shadow-[0_0_45px_rgba(139,92,246,0.15)]'
+                  ? 'border-trilha-purple-500/40 shadow-[0_0_60px_rgba(139,92,246,0.15)]'
                   : 'border-white/10'
               }`}
             >

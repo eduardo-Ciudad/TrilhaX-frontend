@@ -26,7 +26,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-trilha-bg/80 border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-trilha-bg/70 border-b border-white/5 shadow-lg shadow-black/10">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="text-xl font-extrabold tracking-tight">
           Trilha

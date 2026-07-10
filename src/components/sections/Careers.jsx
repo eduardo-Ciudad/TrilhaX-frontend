@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { FiArrowRight } from 'react-icons/fi'
 import GlassCard from '../ui/GlassCard.jsx'
+import BackgroundOrbs from '../ui/BackgroundOrbs.jsx'
 
 const careers = [
   {
@@ -37,8 +38,9 @@ const item = {
 
 export default function Careers() {
   return (
-    <section id="carreiras" className="relative py-24 md:py-32">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="carreiras" className="relative py-24 md:py-32 overflow-hidden">
+      <BackgroundOrbs variant="section" />
+      <div className="relative max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

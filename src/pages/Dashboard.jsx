@@ -18,7 +18,7 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen bg-trilha-bg overflow-hidden">
-      <BackgroundOrbs />
+      <BackgroundOrbs variant="hero" />
 
       <nav className="relative z-10 flex items-center justify-between px-6 h-16 border-b border-white/5 backdrop-blur-md bg-trilha-bg/80">
         <div className="text-xl font-extrabold tracking-tight">

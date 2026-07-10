@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { FiUserPlus, FiMap, FiBookOpen } from 'react-icons/fi'
 import GlassCard from '../ui/GlassCard.jsx'
+import BackgroundOrbs from '../ui/BackgroundOrbs.jsx'
 
 const steps = [
   {
@@ -32,8 +33,9 @@ const item = {
 
 export default function HowItWorks() {
   return (
-    <section id="como-funciona" className="relative py-24 md:py-32">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="como-funciona" className="relative py-24 md:py-32 overflow-hidden">
+      <BackgroundOrbs variant="section" />
+      <div className="relative max-w-6xl mx-auto px-6">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
