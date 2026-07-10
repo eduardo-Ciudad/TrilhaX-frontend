@@ -116,7 +116,7 @@
 
         try {
           await register(nome, email, senha);
-          window.location.href = 'dashboard.html';
+          redirectByRole();
         } catch (err) {
           formError.textContent = err.message || 'Não foi possível criar sua conta. Tente novamente.';
           formError.classList.add('visible');

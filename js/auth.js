@@ -42,3 +42,12 @@ function requireAuth() {
     window.location.href = 'login.html';
   }
 }
+
+function redirectByRole() {
+  const user = getUser();
+  if (user && user.role === 'ADMIN') {
+    window.location.href = 'admin.html';
+  } else {
+    window.location.href = 'dashboard.html';
+  }
+}

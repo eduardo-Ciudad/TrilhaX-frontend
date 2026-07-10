@@ -54,7 +54,7 @@
 
         try {
           await login(email, senha);
-          window.location.href = 'dashboard.html';
+          redirectByRole();
         } catch (err) {
           formError.textContent =
             err.message || 'Credenciais inválidas. Verifique seu email e senha.';
