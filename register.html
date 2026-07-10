@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criar conta — TrilhaX</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body>
+    <div class="auth-page">
+      <div class="auth-card glass-card">
+        <a href="index.html" class="auth-logo">Trilha<span>X</span></a>
+        <h1 class="auth-title">Criar sua conta</h1>
+
+        <div class="form-error" id="form-error"></div>
+
+        <form id="register-form" novalidate>
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" placeholder="Seu nome completo" />
+            <p class="field-error" id="error-nome"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" />
+            <p class="field-error" id="error-email"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" placeholder="••••••••" />
+            <p class="field-error" id="error-senha"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmar-senha">Confirmar senha</label>
+            <input type="password" id="confirmar-senha" name="confirmarSenha" placeholder="••••••••" />
+            <p class="field-error" id="error-confirmar-senha"></p>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submit-btn">
+            Criar conta
+          </button>
+        </form>
+
+        <p class="auth-footer-text">
+          Já tem conta? <a href="login.html">Entrar</a>
+        </p>
+        <p class="auth-back-link"><a href="index.html">Voltar para início</a></p>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      const form = document.getElementById('register-form');
+      const formError = document.getElementById('form-error');
+      const submitBtn = document.getElementById('submit-btn');
+
+      const fields = ['nome', 'email', 'senha', 'confirmar-senha'];
+
+      function clearErrors() {
+        formError.classList.remove('visible');
+        fields.forEach((field) => {
+          document.getElementById(`error-${field}`).textContent = '';
+          document.getElementById(field).classList.remove('invalid');
+        });
+      }
+
+      function setFieldError(field, message) {
+        document.getElementById(`error-${field}`).textContent = message;
+        document.getElementById(field).classList.add('invalid');
+      }
+
+      function validate({ nome, email, senha, confirmarSenha }) {
+        const errors = {};
+
+        if (!nome.trim()) {
+          errors.nome = 'Nome é obrigatório.';
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          errors.email = 'Informe um email válido.';
+        }
+
+        if (senha.length < 6) {
+          errors.senha = 'A senha deve ter no mínimo 6 caracteres.';
+        }
+
+        if (confirmarSenha !== senha) {
+          errors['confirmar-senha'] = 'As senhas não coincidem.';
+        }
+
+        return errors;
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearErrors();
+
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const confirmarSenha = document.getElementById('confirmar-senha').value;
+
+        const errors = validate({ nome, email, senha, confirmarSenha });
+        if (Object.keys(errors).length > 0) {
+          Object.entries(errors).forEach(([field, message]) => setFieldError(field, message));
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Criando conta...';
+
+        try {
+          await register(nome, email, senha);
+          window.location.href = 'dashboard.html';
+        } catch (err) {
+          formError.textContent = err.message || 'Não foi possível criar sua conta. Tente novamente.';
+          formError.classList.add('visible');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Criar conta';
+        }
+      });
+    </script>
+  </body>
+</html>
