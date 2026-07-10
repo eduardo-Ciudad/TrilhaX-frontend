@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — TrilhaX</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+  </head>
+  <body>
+    <nav class="dashboard-navbar">
+      <a href="index.html" class="navbar-logo">Trilha<span>X</span></a>
+      <button class="btn btn-secondary" id="logout-btn">Sair</button>
+    </nav>
+
+    <main class="dashboard-main">
+      <div class="glass-card dashboard-card">
+        <h1 id="welcome-message">Bem-vindo!</h1>
+        <p>
+          Seu painel de trilhas está em construção. Em breve você poderá acompanhar seu progresso
+          por aqui.
+        </p>
+      </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      requireAuth();
+
+      const user = getUser();
+      if (user) {
+        document.getElementById('welcome-message').textContent = `Bem-vindo, ${user.nome}!`;
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', logout);
+    </script>
+  </body>
+</html>
