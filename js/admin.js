@@ -253,4 +253,125 @@ tabLoaders.planos = { loaded: false, load: loadPlanos };
 
 document.getElementById('btn-novo-plano').addEventListener('click', openPlanoModal);
 
+/* Carreiras */
+
+const listaCarreiras = document.getElementById('lista-carreiras');
+
+function carreiraFormTemplate() {
+  return `
+    <h2 class="modal-title" id="modal-title">Criar nova carreira</h2>
+    <div class="form-error" id="carreira-form-error"></div>
+    <form id="carreira-form" novalidate>
+      <div class="form-group">
+        <label for="carreira-nome">Nome</label>
+        <input type="text" id="carreira-nome" name="nome" maxlength="100" required />
+      </div>
+      <div class="form-group">
+        <label for="carreira-descricao">Descrição</label>
+        <textarea id="carreira-descricao" name="descricao" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="carreira-icone">URL do ícone</label>
+        <input type="text" id="carreira-icone" name="iconeUrl" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label for="carreira-ordem">Ordem</label>
+        <input type="number" id="carreira-ordem" name="ordem" min="0" required />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="carreira-cancel-btn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="carreira-submit-btn">Salvar</button>
+      </div>
+    </form>
+  `;
+}
+
+function openCarreiraModal() {
+  openModal(carreiraFormTemplate());
+  document.getElementById('carreira-cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('carreira-form').addEventListener('submit', handleCarreiraSubmit);
+}
+
+async function handleCarreiraSubmit(e) {
+  e.preventDefault();
+  const formError = document.getElementById('carreira-form-error');
+  const submitBtn = document.getElementById('carreira-submit-btn');
+  formError.classList.remove('visible');
+
+  const nome = document.getElementById('carreira-nome').value.trim();
+  const descricao = document.getElementById('carreira-descricao').value.trim();
+  const iconeUrl = document.getElementById('carreira-icone').value.trim();
+  const ordem = parseInt(document.getElementById('carreira-ordem').value, 10);
+
+  if (!nome || Number.isNaN(ordem) || ordem < 0) {
+    formError.textContent = 'Preencha os campos obrigatórios corretamente.';
+    formError.classList.add('visible');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Salvando...';
+
+  try {
+    await apiFetch('/carreiras', {
+      method: 'POST',
+      body: JSON.stringify({ nome, descricao, iconeUrl, ordem }),
+    });
+    closeModal();
+    showToast('Carreira criada com sucesso!', 'success');
+    loadCarreiras();
+  } catch (err) {
+    formError.textContent = extractErrorMessage(err, 'Não foi possível criar a carreira.');
+    formError.classList.add('visible');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Salvar';
+  }
+}
+
+function renderCarreiras(carreiras) {
+  if (carreiras.length === 0) {
+    renderEmptyState(listaCarreiras, {
+      icon: '🎯',
+      message: 'Nenhuma carreira cadastrada.',
+      buttonLabel: '+ Nova Carreira',
+      onCreate: openCarreiraModal,
+    });
+    return;
+  }
+
+  listaCarreiras.innerHTML = carreiras
+    .map((carreira) => {
+      const ativa = carreira.ativa !== false;
+      return `
+        <div class="item-card">
+          <div class="item-card-main">
+            <h3 class="item-card-title">${escapeHtml(carreira.nome)}</h3>
+            ${carreira.descricao ? `<p class="item-card-desc">${escapeHtml(carreira.descricao)}</p>` : ''}
+          </div>
+          <div class="item-card-meta">
+            <span class="badge badge-order">Ordem ${carreira.ordem}</span>
+            <span class="badge ${ativa ? 'badge-active' : 'badge-inactive'}">${ativa ? 'Ativa' : 'Inativa'}</span>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+async function loadCarreiras() {
+  renderLoading(listaCarreiras);
+  tabLoaders.carreiras.loaded = true;
+  try {
+    const carreiras = await apiFetch('/carreiras');
+    renderCarreiras(carreiras);
+  } catch (err) {
+    listaCarreiras.innerHTML = `<p class="loading-text">Erro ao carregar carreiras.</p>`;
+    tabLoaders.carreiras.loaded = false;
+  }
+}
+
+tabLoaders.carreiras = { loaded: false, load: loadCarreiras };
+
+document.getElementById('btn-nova-carreira').addEventListener('click', openCarreiraModal);
+
 setActiveTab('planos');
