@@ -320,6 +320,7 @@ async function handleCarreiraSubmit(e) {
     closeModal();
     showToast('Carreira criada com sucesso!', 'success');
     loadCarreiras();
+    carreirasCache = null;
   } catch (err) {
     formError.textContent = extractErrorMessage(err, 'Não foi possível criar a carreira.');
     formError.classList.add('visible');
@@ -373,5 +374,206 @@ async function loadCarreiras() {
 tabLoaders.carreiras = { loaded: false, load: loadCarreiras };
 
 document.getElementById('btn-nova-carreira').addEventListener('click', openCarreiraModal);
+
+/* Ebooks */
+
+const listaEbooks = document.getElementById('lista-ebooks');
+const selectCarreiraFiltro = document.getElementById('select-carreira-filtro');
+
+let carreirasCache = null;
+let carreiraFiltroId = '';
+
+async function getCarreirasCache() {
+  if (!carreirasCache) {
+    carreirasCache = await apiFetch('/carreiras');
+  }
+  return carreirasCache;
+}
+
+function renderCarreiraOptions(select, carreiras, selectedId) {
+  select.innerHTML =
+    '<option value="">Selecione uma carreira</option>' +
+    carreiras
+      .map(
+        (c) =>
+          `<option value="${c.id}" ${String(c.id) === String(selectedId) ? 'selected' : ''}>${escapeHtml(c.nome)}</option>`
+      )
+      .join('');
+}
+
+function ebookFormTemplate(carreiras) {
+  return `
+    <h2 class="modal-title" id="modal-title">Criar novo ebook</h2>
+    <div class="form-error" id="ebook-form-error"></div>
+    <form id="ebook-form" novalidate>
+      <div class="form-group">
+        <label for="ebook-carreira">Carreira</label>
+        <select id="ebook-carreira" name="carreiraId" required>
+          <option value="">Selecione uma carreira</option>
+          ${carreiras
+            .map(
+              (c) =>
+                `<option value="${c.id}" ${String(c.id) === String(carreiraFiltroId) ? 'selected' : ''}>${escapeHtml(c.nome)}</option>`
+            )
+            .join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ebook-titulo">Título</label>
+        <input type="text" id="ebook-titulo" name="titulo" maxlength="150" required />
+      </div>
+      <div class="form-group">
+        <label for="ebook-descricao">Descrição</label>
+        <textarea id="ebook-descricao" name="descricao" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="ebook-conteudo">Conteúdo do roadmap</label>
+        <textarea
+          id="ebook-conteudo"
+          name="conteudo"
+          class="mono"
+          required
+          placeholder="# Fase 1 — Fundamentos
+
+## 1. Tópico
+- Item 1
+- Item 2
+
+## 2. Tópico
+- Item 1"
+        ></textarea>
+        <p class="form-hint">Use Markdown para formatar o conteúdo (# títulos, ## subtítulos, - listas)</p>
+      </div>
+      <div class="form-group">
+        <label for="ebook-ordem">Ordem</label>
+        <input type="number" id="ebook-ordem" name="ordem" min="0" required />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="ebook-cancel-btn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="ebook-submit-btn">Salvar</button>
+      </div>
+    </form>
+  `;
+}
+
+async function openEbookModal() {
+  const carreiras = await getCarreirasCache();
+  openModal(ebookFormTemplate(carreiras), { large: true });
+  document.getElementById('ebook-cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('ebook-form').addEventListener('submit', handleEbookSubmit);
+}
+
+async function handleEbookSubmit(e) {
+  e.preventDefault();
+  const formError = document.getElementById('ebook-form-error');
+  const submitBtn = document.getElementById('ebook-submit-btn');
+  formError.classList.remove('visible');
+
+  const carreiraId = document.getElementById('ebook-carreira').value;
+  const titulo = document.getElementById('ebook-titulo').value.trim();
+  const descricao = document.getElementById('ebook-descricao').value.trim();
+  const conteudo = document.getElementById('ebook-conteudo').value.trim();
+  const ordem = parseInt(document.getElementById('ebook-ordem').value, 10);
+
+  if (!carreiraId || !titulo || !conteudo || Number.isNaN(ordem) || ordem < 0) {
+    formError.textContent = 'Preencha os campos obrigatórios corretamente.';
+    formError.classList.add('visible');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Salvando...';
+
+  try {
+    await apiFetch('/ebooks', {
+      method: 'POST',
+      body: JSON.stringify({ carreiraId: Number(carreiraId), titulo, descricao, conteudo, ordem }),
+    });
+    closeModal();
+    showToast('Ebook criado com sucesso!', 'success');
+    if (String(carreiraId) === String(carreiraFiltroId)) {
+      loadEbooks(carreiraFiltroId);
+    }
+  } catch (err) {
+    formError.textContent = extractErrorMessage(err, 'Não foi possível criar o ebook.');
+    formError.classList.add('visible');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Salvar';
+  }
+}
+
+function renderEbooksPrompt() {
+  renderEmptyState(listaEbooks, {
+    icon: '📚',
+    message: 'Selecione uma carreira para ver os ebooks.',
+  });
+}
+
+function renderEbooks(ebooks) {
+  if (ebooks.length === 0) {
+    renderEmptyState(listaEbooks, {
+      icon: '📚',
+      message: 'Nenhum ebook nesta carreira. Crie o primeiro!',
+      buttonLabel: '+ Novo Ebook',
+      onCreate: openEbookModal,
+    });
+    return;
+  }
+
+  const carreiraNome =
+    carreirasCache?.find((c) => String(c.id) === String(carreiraFiltroId))?.nome || '';
+
+  listaEbooks.innerHTML = ebooks
+    .map(
+      (ebook) => `
+        <div class="item-card">
+          <div class="item-card-main">
+            <h3 class="item-card-title">${escapeHtml(ebook.titulo)}</h3>
+            ${ebook.descricao ? `<p class="item-card-desc">${escapeHtml(ebook.descricao)}</p>` : ''}
+          </div>
+          <div class="item-card-meta">
+            <span class="badge badge-order">Ordem ${ebook.ordem}</span>
+            <span class="badge badge-carreira">${escapeHtml(carreiraNome)}</span>
+          </div>
+        </div>
+      `
+    )
+    .join('');
+}
+
+async function loadEbooks(carreiraId) {
+  renderLoading(listaEbooks);
+  try {
+    const ebooks = await apiFetch(`/ebooks/carreira/${carreiraId}`);
+    renderEbooks(ebooks);
+  } catch (err) {
+    listaEbooks.innerHTML = `<p class="loading-text">Erro ao carregar ebooks.</p>`;
+  }
+}
+
+selectCarreiraFiltro.addEventListener('change', (e) => {
+  carreiraFiltroId = e.target.value;
+  if (carreiraFiltroId) {
+    loadEbooks(carreiraFiltroId);
+  } else {
+    renderEbooksPrompt();
+  }
+});
+
+async function loadEbooksTab() {
+  tabLoaders.ebooks.loaded = true;
+  try {
+    const carreiras = await getCarreirasCache();
+    renderCarreiraOptions(selectCarreiraFiltro, carreiras, carreiraFiltroId);
+    renderEbooksPrompt();
+  } catch (err) {
+    listaEbooks.innerHTML = `<p class="loading-text">Erro ao carregar carreiras.</p>`;
+    tabLoaders.ebooks.loaded = false;
+  }
+}
+
+tabLoaders.ebooks = { loaded: false, load: loadEbooksTab };
+
+document.getElementById('btn-novo-ebook').addEventListener('click', openEbookModal);
 
 setActiveTab('planos');

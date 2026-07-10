@@ -366,6 +366,11 @@
   color: var(--purple-400);
 }
 
+.badge-carreira {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--blue-500);
+}
+
 /* Empty / loading states */
 
 .empty-state {
